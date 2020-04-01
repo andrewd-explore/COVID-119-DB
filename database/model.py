@@ -1,6 +1,6 @@
 from botocore.errorfactory import ClientError
 from sqlalchemy import create_engine
-from sqlalchemy import Boolean, Column, String, Date, ForeignKey, DateTime, Integer
+from sqlalchemy import Boolean, Column, String, Date, ForeignKey, DateTime, Integer ,Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -26,6 +26,8 @@ class Country(Base):
 
     id = Column(Integer, primary_key=True)
     country = Column(String)
+    lat = Column(Float)
+    long = Column(Float)
 
 
 class Location(Base):
@@ -61,7 +63,7 @@ class Tests(Base):
 if __name__ == "__main__":
     secret = {
         "username": "admin",
-        "password": "",
+        "password": "corona_must_die",
         "host": "database-1.ccwgqdqrrmvt.eu-west-1.rds.amazonaws.com",
         "port": "1433"
     }
