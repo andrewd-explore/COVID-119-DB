@@ -28,7 +28,16 @@ class Country(Base):
     country = Column(String)
     lat = Column(Float)
     long = Column(Float)
+    
+class CounterMeasures(Base):
+    __tablename__ = 'CounterMeasures'
 
+    id = Column(Integer, primary_key=True)
+    date = Column(Date)
+    measure = Column(String)
+    value =Column(Float)
+    country_id = Column(Integer, ForeignKey('Country.id'))
+    
 
 class Location(Base):
     __tablename__ = 'Location'

@@ -1,6 +1,6 @@
 from botocore.errorfactory import ClientError
 from sqlalchemy import create_engine
-from sqlalchemy import Boolean, Column, String, Date, ForeignKey, DateTime, Integer ,Float
+from sqlalchemy import Boolean, Column, String, Date, ForeignKey, DateTime, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -26,8 +26,6 @@ class Country(Base):
 
     id = Column(Integer, primary_key=True)
     country = Column(String)
-    lat = Column(Float)
-    long = Column(Float)
 
 
 class Location(Base):
