@@ -1,9 +1,11 @@
 from botocore.errorfactory import ClientError
 from sqlalchemy import create_engine
-from sqlalchemy import Boolean, Column, String, Date, ForeignKey, DateTime, Integer ,Float
+from sqlalchemy import Boolean, Column, String, Date, ForeignKey, DateTime, Integer, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-
+import boto3
+import base64
+from botocore.exceptions import ClientError
 import json
 
 Base = declarative_base()
@@ -19,6 +21,16 @@ class CasesGlobal(Base):
     recovered = Column(Integer)
 
     country_id = Column(Integer, ForeignKey('Country.id'))
+    
+    
+class CounterMeasures(Base):
+    __tablename__ = 'CounterMeasures'
+
+    id = Column(Integer, primary_key=True)
+    date = Column(Date)
+    measure = Column(String)
+    value = Column(Float)
+    country_id = Column(Integer, ForeignKey('Country.id'))
 
 
 class Country(Base):
@@ -28,16 +40,7 @@ class Country(Base):
     country = Column(String)
     lat = Column(Float)
     long = Column(Float)
-    
-class CounterMeasures(Base):
-    __tablename__ = 'CounterMeasures'
 
-    id = Column(Integer, primary_key=True)
-    date = Column(Date)
-    measure = Column(String)
-    value =Column(Float)
-    country_id = Column(Integer, ForeignKey('Country.id'))
-    
 
 class Location(Base):
     __tablename__ = 'Location'
@@ -66,23 +69,28 @@ class Tests(Base):
     country_id = Column(Integer, ForeignKey('Country.id'))
 
 
-
+    
+    
+def get_secret():
+    secret_name = "SecretCorona"
+    region_name = "eu-west-1"
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+    # In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
+    # See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+    # We rethrow the exception by default.
+    get_secret_value_response = client.get_secret_value(
+        SecretId=secret_name
+    )
+    return get_secret_value_response
 
 
 if __name__ == "__main__":
-    secret = {
-        "username": "admin",
-        "password": "",
-        "host": "database-1.ccwgqdqrrmvt.eu-west-1.rds.amazonaws.com",
-        "port": "1433"
-    }
-
-    #     engine = create_engine(
-    #         'mssql+pymssql://' +
-    #         secret['username'] + ':' + secret['password'] + '@' + secret['host'] + ':' +
-    #         str(secret['port']),
-    #         connect_args={'autocommit': True}
-    #     )
+    secret = json.loads(get_secret()["SecretString"]
 
     engine = create_engine(
         'mssql+pymssql://' +
@@ -92,13 +100,3 @@ if __name__ == "__main__":
     )
 
     Base.metadata.create_all(engine)
-
-    # class ConfirmedPatients(Base):
-    #     __tablename__ = 'ConfirmedPatients'
-    #
-    #     id = Column(Integer, primary_key=True)
-    #     date = Column(Date)
-    #     age = Column(Integer)
-    #     gender = Column(Integer)
-    #     travel_status = Column(String)
-    #     location_id = Column(Integer, ForeignKey('Location.id'))
